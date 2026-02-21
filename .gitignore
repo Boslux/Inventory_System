@@ -1,0 +1,62 @@
+############################
+# Unity Generated Folders
+############################
+
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+UserSettings/
+
+############################
+# Visual Studio / Rider
+############################
+
+.vs/
+*.csproj
+*.unityproj
+*.sln
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+
+############################
+# OS Generated
+############################
+
+.DS_Store
+Thumbs.db
+
+############################
+# Crash & Debug
+############################
+
+sysinfo.txt
+
+############################
+# Addressables (if build cache)
+############################
+
+Assets/AddressableAssetsData/*/*.bin*
+
+############################
+# JetBrains Rider
+############################
+
+.idea/
+
+############################
+# Gradle (Android)
+############################
+
+.gradle/
