@@ -7,7 +7,5 @@ public class ItemData : ScriptableObject
     public string displayName;
     public Sprite icon;
     public bool stackable;
-    public int maxStack = 1;
-    public float weight;
-
+    public int maxStack;
 }
