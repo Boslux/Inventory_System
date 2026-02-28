@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Data;
 
 public class Inventory
 {
+    public event Action OnChanged;
+
     public int SlotCount { get; private set; }
     public float MaxWeight { get; private set; }
 
@@ -199,6 +202,7 @@ public class Inventory
         }
 
         // Eklenemeyen miktarı döndür.
+        RaiseChanged();
         return leftover;
     }
 
@@ -229,7 +233,10 @@ public class Inventory
                 s.Clear();
 
             if (remaining <= 0)
+            {
+                RaiseChanged();
                 return true;
+            }
         }
 
         // Ön kontrol geçtiği için buraya normalde düşmemeli.
@@ -258,4 +265,61 @@ public class Inventory
         return total;
     }
     #endregion
+
+    #region SaveData
+    public InventorySaveData ToSaveData()
+    {
+        var data = new InventorySaveData
+        {
+            slotCount = SlotCount,
+            maxWeight = MaxWeight,
+            slots = new List<SlotSaveData>(SlotCount)
+        };
+
+        foreach (var s in slots)
+        {
+            if (s.IsEmpty)
+            {
+                data.slots.Add(new SlotSaveData { itemId = "", amount = 0 });
+            }
+            else
+            {
+                data.slots.Add(new SlotSaveData { itemId = s.Stack.ItemId, amount = s.Stack.Amount });
+            }
+        }
+        return data;
+    }
+    public void LoadFromSaveData(InventorySaveData data, ItemRules rules)
+    {
+        // Güvenlik: veri yoksa çık
+        if (data == null || data.slots == null) return;
+
+        int count = Math.Min(SlotCount, data.slots.Count);
+
+        // Önce temizle
+        for (int i = 0; i < SlotCount; i++)
+            slots[i].Clear();
+
+        // Sonra doldur
+        for (int i = 0; i < count; i++)
+        {
+            var sd = data.slots[i];
+            if (string.IsNullOrEmpty(sd.itemId) || sd.amount <= 0)
+                continue;
+            bool stackable = rules.IsStackable(sd.itemId);
+            int maxStack = stackable ? Math.Max(1, rules.MaxStack(sd.itemId)) : 1;
+
+            int clampedAmount = Math.Max(sd.amount, maxStack);
+            
+            slots[i].Stack = new ItemStack(sd.itemId, clampedAmount);
+        }
+
+        // UI otomatik güncellensin diye event
+        OnChanged?.Invoke();
+    }
+    #endregion
+    private void RaiseChanged()
+    {
+        OnChanged?.Invoke();
+    }
 }
