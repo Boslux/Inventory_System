@@ -1,30 +1,45 @@
 using System;
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
+using TMPro;
 
-public class InventoryViwe : MonoBehaviour
+public class InventoryView : MonoBehaviour
 {
-    [SerializeField] private InventorySlotView slotPref;
+    [SerializeField] private InventorySlotView slotPrefab;
     [SerializeField] private Transform slotParent;
     [SerializeField] private TextMeshProUGUI weightText;
 
-    private List<InventorySlotView> slotViews = new List<InventorySlotView>();
+    private readonly List<InventorySlotView> slotViews = new List<InventorySlotView>();
+    private Action<int> onSlotClicked;
 
-    public void Initialize(int slotCount)
+    public void Initialize(int slotCount, Action<int> slotClickedCallback)
     {
+        onSlotClicked = slotClickedCallback;
+
         for (int i = 0; i < slotCount; i++)
         {
-            var slot = Instantiate(slotPref, slotParent);
+            var slot = Instantiate(slotPrefab, slotParent);
+            slot.Bind(i, HandleSlotClicked);
             slotViews.Add(slot);
         }
     }
+
+    private void HandleSlotClicked(int index)
+    {
+        onSlotClicked?.Invoke(index);
+    }
+
+    public void SetSelectedIndex(int selectedIndex)
+    {
+        for (int i = 0; i < slotViews.Count; i++)
+            slotViews[i].SetSelected(i == selectedIndex);
+    }
+
     public void UpdateView(
         IReadOnlyList<Slot> slots,
         Func<string, Sprite> iconResolver,
         float currentWeight,
-        float maxWeight
-        )
+        float maxWeight)
     {
         for (int i = 0; i < slotViews.Count; i++)
         {
@@ -41,6 +56,8 @@ public class InventoryViwe : MonoBehaviour
                 slotView.SetItem(sprite, slot.Stack.Amount);
             }
         }
-        weightText.text = $"{currentWeight}/ {maxWeight}";
+
+        // Basit format. İstersen 0.0 formatlayabiliriz.
+        weightText.text = $"{currentWeight} / {maxWeight}";
     }
 }
