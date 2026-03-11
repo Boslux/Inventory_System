@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq.Expressions;
 
 public class Inventory
 {
@@ -311,69 +310,12 @@ public class Inventory
             int maxStack = stackable ? Math.Max(1, rules.MaxStack(sd.itemId)) : 1;
 
             int clampedAmount = Math.Max(sd.amount, maxStack);
-
+            
             slots[i].Stack = new ItemStack(sd.itemId, clampedAmount);
         }
 
         // UI otomatik güncellensin diye event
         OnChanged?.Invoke();
-    }
-    #endregion
-    #region Inventory Movement
-    public bool Move(int fromIndex, int toIndex, ItemRules rules)
-    {
-        if (fromIndex == toIndex) return false;
-        if (fromIndex < 0 || fromIndex >= SlotCount) return false;
-        if (toIndex < 0 || toIndex >= SlotCount) return false;
-
-        var fromSlot = slots[fromIndex];
-        var toSlot = slots[toIndex];
-
-        if (fromSlot.IsEmpty) return false;
-
-        // 1️⃣ Eğer target boşsa direkt taşı
-        if (toSlot.IsEmpty)
-        {
-            toSlot.Stack = fromSlot.Stack;
-            fromSlot.Clear();
-
-            OnChanged?.Invoke();
-            return true;
-        }
-
-        // 2️⃣ Aynı item mi?
-        if (fromSlot.Stack.ItemId == toSlot.Stack.ItemId)
-        {
-            bool stackable = rules.IsStackable(fromSlot.Stack.ItemId);
-
-            if (stackable)
-            {
-                int maxStack = Math.Max(1, rules.MaxStack(fromSlot.Stack.ItemId));
-                int space = maxStack - toSlot.Stack.Amount;
-
-                if (space > 0)
-                {
-                    int transfer = Math.Min(space, fromSlot.Stack.Amount);
-
-                    toSlot.Stack.Amount += transfer;
-                    fromSlot.Stack.Amount -= transfer;
-
-                    if (fromSlot.Stack.Amount <= 0)
-                        fromSlot.Clear();
-
-                    OnChanged?.Invoke();
-                    return true;
-                }
-            }
-        }
-
-        // 3️⃣ Farklı item veya stack dolu → swap
-        var temp = toSlot.Stack;
-        toSlot.Stack = fromSlot.Stack;
-        fromSlot.Stack = temp;
-
-        OnChanged?.Invoke();
-        return true;
     }
     #endregion
     private void RaiseChanged()
