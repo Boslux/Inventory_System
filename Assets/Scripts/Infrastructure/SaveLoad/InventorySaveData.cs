@@ -12,6 +12,6 @@ public class InventorySaveData
 [Serializable]
 public class SlotSaveData
 {
-    public string itemId; // boşsa null veya ""
-    public int amount;    // boşsa 0
+    public string itemId;
+    public int amount;
 }
