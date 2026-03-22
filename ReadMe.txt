@@ -35,12 +35,5 @@ IReadOnlyList slot exposure
 
 Clean separation of concerns
 
-How to Run
-
-Clone the repository
-
-Open with Unity (LTS recommended)
-
-Open the Demo scene
-
-Press Play
+itch.io page:
+https://boslux.itch.io/samuraygame
